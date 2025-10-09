@@ -9,7 +9,9 @@ export async function POST(request: Request) {
 
   try {
     const { text: questions } = await generateText({
-      model: google("gemini-2.0-flash-001"),
+      // 💡 FIX: Changed the model identifier to 'gemini-2.5-flash', 
+      // which supports the required v2 specification for AI SDK 5.
+      model: google('gemini-2.5-flash'), 
       prompt: `Prepare questions for a job interview.
         The job role is ${role}.
         The job experience level is ${level}.
@@ -30,7 +32,9 @@ export async function POST(request: Request) {
       type: type,
       level: level,
       techstack: techstack.split(","),
-      questions: JSON.parse(questions),
+      // NOTE: Ensure the model response is always valid JSON. 
+      // You might want a try...catch around JSON.parse for robustness.
+      questions: JSON.parse(questions), 
       userId: userid,
       finalized: true,
       coverImage: getRandomInterviewCover(),
@@ -42,6 +46,8 @@ export async function POST(request: Request) {
     return Response.json({ success: true }, { status: 200 });
   } catch (error) {
     console.error("Error:", error);
+    // Returning the error object itself can sometimes leak sensitive info, 
+    // but we keep the structure for now, as it was in the original code.
     return Response.json({ success: false, error: error }, { status: 500 });
   }
 }
